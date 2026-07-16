@@ -87,4 +87,9 @@ public class Interview {
     public OffsetDateTime getCreatedAt() {
         return createdAt;
     }
+
+    public void update(String notes, Integer rating) {
+        this.notes = notes;
+        this.rating = rating;
+    }
 }

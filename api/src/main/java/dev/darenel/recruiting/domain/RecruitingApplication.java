@@ -77,4 +77,8 @@ public class RecruitingApplication {
     public void updateScore(int score) {
         this.score = score;
     }
+
+    public void moveTo(Stage stage) {
+        this.stage = stage;
+    }
 }
