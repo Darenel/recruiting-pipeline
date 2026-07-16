@@ -7,6 +7,10 @@ import {
   CandidateRequest,
   Company,
   CompanyRequest,
+  DashboardFunnelItem,
+  DashboardStackDemandItem,
+  DashboardSummary,
+  DashboardTimelineItem,
   Interview,
   InterviewKind,
   Stack,
@@ -71,5 +75,11 @@ export const resources = {
       id: UUID,
       body: { scheduledAt: string; kind: InterviewKind; notes: string; rating: number | null },
     ) => api<Interview>(`/applications/${id}/interviews`, { method: "POST", body }),
+  },
+  dashboard: {
+    summary: () => api<DashboardSummary>("/dashboard/summary"),
+    funnel: () => api<DashboardFunnelItem[]>("/dashboard/funnel"),
+    stackDemand: () => api<DashboardStackDemandItem[]>("/dashboard/stack-demand"),
+    timeline: (days: number) => api<DashboardTimelineItem[]>(`/dashboard/timeline${params({ days })}`),
   },
 };

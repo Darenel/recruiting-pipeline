@@ -111,6 +111,34 @@ export type ApplicationDetail = ApplicationSummary & {
   interviews: Interview[];
 };
 
+export type DashboardSummary = {
+  openVacancies: number;
+  totalCandidates: number;
+  activeApplications: number;
+  offersThisMonth: number;
+  rejectedThisMonth: number;
+  avgScoreActive: number | null;
+  applicationsByStage: Partial<Record<Stage, number>>;
+};
+
+export type DashboardFunnelItem = {
+  stage: Stage;
+  count: number;
+  conversionPct: number;
+};
+
+export type DashboardStackDemandItem = {
+  stack: Stack;
+  openVacancies: number;
+  activeApplications: number;
+};
+
+export type DashboardTimelineItem = {
+  date: string;
+  applications: number;
+  offers: number;
+};
+
 export const stacks: Stack[] = ["REACT", "JAVA", "SQL", "PYTHON", "DOTNET"];
 export const stages: Stage[] = ["POSTULADO", "ENTREVISTA", "PRUEBA_TECNICA", "OFERTA", "RECHAZADO"];
 export const interviewKinds: InterviewKind[] = ["PHONE", "TECHNICAL", "CULTURAL", "FINAL"];

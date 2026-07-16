@@ -13,7 +13,7 @@ import { ApiError } from "./lib/api";
 import { BoardPage } from "./pages/BoardPage";
 import { CandidatesPage } from "./pages/CandidatesPage";
 import { CompaniesPage } from "./pages/CompaniesPage";
-import { PlaceholderPage } from "./pages/PlaceholderPage";
+import { DashboardPage } from "./pages/DashboardPage";
 import { VacanciesPage } from "./pages/VacanciesPage";
 
 type LocationState = {
@@ -181,16 +181,7 @@ export default function App() {
               </RoleGate>
             }
           />
-          <Route
-            path="/dashboard"
-            element={
-              <PlaceholderPage
-                eyebrow="Metrics"
-                title="Dashboard"
-                copy="Funnel, stack demand, timeline, and score metrics will be charted here."
-              />
-            }
-          />
+          <Route path="/dashboard" element={<DashboardPage />} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/board" replace />} />
