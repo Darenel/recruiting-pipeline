@@ -87,4 +87,12 @@ public class Vacancy {
     public OffsetDateTime getCreatedAt() {
         return createdAt;
     }
+
+    public void update(Company company, String title, int seniorityYears, VacancyStatus status, Set<Stack> stacks) {
+        this.company = company;
+        this.title = title;
+        this.seniorityYears = seniorityYears;
+        this.status = status;
+        this.stacks = new LinkedHashSet<>(stacks);
+    }
 }

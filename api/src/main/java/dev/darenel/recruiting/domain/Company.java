@@ -48,4 +48,9 @@ public class Company {
     public OffsetDateTime getCreatedAt() {
         return createdAt;
     }
+
+    public void update(String name, String industry) {
+        this.name = name;
+        this.industry = industry;
+    }
 }

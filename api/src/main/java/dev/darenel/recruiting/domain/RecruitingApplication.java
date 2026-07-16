@@ -73,4 +73,8 @@ public class RecruitingApplication {
     public OffsetDateTime getCreatedAt() {
         return createdAt;
     }
+
+    public void updateScore(int score) {
+        this.score = score;
+    }
 }

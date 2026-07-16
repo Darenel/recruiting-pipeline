@@ -92,4 +92,14 @@ public class Candidate {
     public OffsetDateTime getCreatedAt() {
         return createdAt;
     }
+
+    public void update(String name, String email, String headline, int yearsExperience, String extraSkills,
+            Set<Stack> stacks) {
+        this.name = name;
+        this.email = email;
+        this.headline = headline;
+        this.yearsExperience = yearsExperience;
+        this.extraSkills = extraSkills;
+        this.stacks = new LinkedHashSet<>(stacks);
+    }
 }
