@@ -27,4 +27,5 @@ springdoc:
 
 recruiting:
   security:
-    jwt-secret: ${JWT_SECRET:change-this-development-secret}
+    jwt-secret: ${JWT_SECRET:change-this-development-secret-32b}
+    jwt-expiration-minutes: ${JWT_EXPIRATION_MINUTES:60}
