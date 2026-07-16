@@ -11,7 +11,10 @@ import {
 import { ProtectedRoute, RoleGate, useAuth } from "./auth";
 import { ApiError } from "./lib/api";
 import { BoardPage } from "./pages/BoardPage";
+import { CandidatesPage } from "./pages/CandidatesPage";
+import { CompaniesPage } from "./pages/CompaniesPage";
 import { PlaceholderPage } from "./pages/PlaceholderPage";
+import { VacanciesPage } from "./pages/VacanciesPage";
 
 type LocationState = {
   from?: {
@@ -168,35 +171,13 @@ export default function App() {
         <Route element={<AppLayout />}>
           <Route index element={<Navigate to="/board" replace />} />
           <Route path="/board" element={<BoardPage />} />
-          <Route
-            path="/candidates"
-            element={
-              <PlaceholderPage
-                eyebrow="Candidates"
-                title="Candidates"
-                copy="Candidate profiles, skill filters, scoring details, and interview timelines will live here."
-              />
-            }
-          />
-          <Route
-            path="/vacancies"
-            element={
-              <PlaceholderPage
-                eyebrow="Vacancies"
-                title="Vacancies"
-                copy="Open roles, required stacks, seniority, and hiring status controls will live here."
-              />
-            }
-          />
+          <Route path="/candidates" element={<CandidatesPage />} />
+          <Route path="/vacancies" element={<VacanciesPage />} />
           <Route
             path="/companies"
             element={
               <RoleGate allow={["ADMIN"]}>
-                <PlaceholderPage
-                  eyebrow="Admin"
-                  title="Companies"
-                  copy="Company management is limited to admins and will connect to the API CRUD module."
-                />
+                <CompaniesPage />
               </RoleGate>
             }
           />
