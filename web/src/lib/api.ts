@@ -1,4 +1,5 @@
 import { readAuthSession } from "../auth/storage";
+import { DemoRequestError, demoRequest } from "../demo/server";
 
 export type Page<T> = {
   data: T[];
@@ -27,6 +28,7 @@ export class ApiError extends Error {
 }
 
 const baseURL = "/api/v1";
+export const isDemoMode = import.meta.env.VITE_MODE === "demo";
 
 type RequestOptions = Omit<RequestInit, "body"> & {
   body?: unknown;
@@ -46,6 +48,21 @@ async function parseApiError(response: Response): Promise<ApiError> {
 }
 
 export async function api<T>(path: string, options: RequestOptions = {}): Promise<T> {
+  if (isDemoMode) {
+    try {
+      return await demoRequest<T>(path, options);
+    } catch (error) {
+      if (error instanceof DemoRequestError) {
+        throw new ApiError(error.status, error.message, {
+          status: error.status,
+          error: error.message,
+          message: error.message,
+        });
+      }
+      throw error;
+    }
+  }
+
   const session = readAuthSession();
   const headers = new Headers(options.headers);
 

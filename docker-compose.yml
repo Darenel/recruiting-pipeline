@@ -16,5 +16,34 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
 
+  api:
+    build:
+      context: ./api
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      API_PORT: 8080
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-recruiting}
+      POSTGRES_USER: ${POSTGRES_USER:-recruiting}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-recruiting}
+      DATABASE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-recruiting}
+    ports:
+      - "${API_PORT:-8080}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  web:
+    build:
+      context: ./web
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-8081}:80"
+    depends_on:
+      - api
+
 volumes:
   postgres-data:

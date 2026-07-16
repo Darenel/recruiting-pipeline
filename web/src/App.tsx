@@ -9,7 +9,7 @@ import {
   useNavigate,
 } from "react-router-dom";
 import { ProtectedRoute, RoleGate, useAuth } from "./auth";
-import { ApiError } from "./lib/api";
+import { ApiError, isDemoMode } from "./lib/api";
 import { BoardPage } from "./pages/BoardPage";
 import { CandidatesPage } from "./pages/CandidatesPage";
 import { CompaniesPage } from "./pages/CompaniesPage";
@@ -34,7 +34,7 @@ function LoginPage() {
   const { accessToken, login } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const [email, setEmail] = useState("recruiter@recruiting.local");
+  const [email, setEmail] = useState(isDemoMode ? "admin@recruiting.local" : "recruiter@recruiting.local");
   const [password, setPassword] = useState("demo1234");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -68,7 +68,11 @@ function LoginPage() {
           Recruiting
         </h1>
         <p className="login-copy">Pipeline control for recruiters and admins.</p>
-        <div className="demo-note">Demo users: recruiter@recruiting.local or admin@recruiting.local</div>
+        <div className="demo-note">
+          {isDemoMode
+            ? "Static demo mode: changes stay in this browser session and reset on reload."
+            : "Demo users: recruiter@recruiting.local or admin@recruiting.local"}
+        </div>
 
         <form className="login-form" onSubmit={handleSubmit}>
           <label>
