@@ -1,5 +1,7 @@
 # Recruiting Pipeline
 
+![Recruiting Pipeline](docs/cover.png)
+
 Recruiting Pipeline is a small ATS for teams that need a practical Kanban view of open roles, candidates, interviews, and hiring outcomes. It combines a dark "Ambar Nocturno" web UI with a Spring Boot API, seeded demo data, automatic candidate scoring, and dashboard charts.
 
 ## Stack
