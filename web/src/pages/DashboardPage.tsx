@@ -14,6 +14,7 @@ import {
   YAxis,
 } from "recharts";
 import { resources } from "../lib/resources";
+import { useI18n, type TranslationKey } from "../i18n";
 import {
   DashboardFunnelItem,
   DashboardStackDemandItem,
@@ -22,7 +23,7 @@ import {
   Stage,
   stages,
 } from "../lib/types";
-import { formatDate, humanize } from "../utils";
+import { formatDate } from "../utils";
 
 const chartInk = "var(--ink)";
 const chartMuted = "var(--muted)";
@@ -33,6 +34,13 @@ const chartCoral = "var(--chart-3)";
 
 const forwardStages: Stage[] = ["POSTULADO", "ENTREVISTA", "PRUEBA_TECNICA", "OFERTA"];
 const rangeOptions = [14, 30, 60] as const;
+const stageLabelKeys: Record<Stage, TranslationKey> = {
+  POSTULADO: "stage.POSTULADO",
+  ENTREVISTA: "stage.ENTREVISTA",
+  PRUEBA_TECNICA: "stage.PRUEBA_TECNICA",
+  OFERTA: "stage.OFERTA",
+  RECHAZADO: "stage.RECHAZADO",
+};
 
 type TooltipRow = {
   name?: string;
@@ -68,29 +76,27 @@ function formatPercent(value: number) {
   return `${Math.round(value)}%`;
 }
 
-function stageLabel(stage: Stage) {
-  return humanize(stage);
-}
-
-function tooltipLabel(label: string | number | undefined) {
+function tooltipLabel(label: string | number | undefined, t: (key: TranslationKey) => string) {
   if (!label) {
     return null;
   }
 
   const text = String(label);
   if (stages.includes(text as Stage)) {
-    return stageLabel(text as Stage);
+    return t(stageLabelKeys[text as Stage]);
   }
 
   return /^\d{4}-\d{2}-\d{2}/.test(text) ? formatDate(text) : text;
 }
 
 function DashboardTooltip({ active, label, payload }: DashboardTooltipProps) {
+  const { t } = useI18n();
+
   if (!active || !payload?.length) {
     return null;
   }
 
-  const formattedLabel = tooltipLabel(label);
+  const formattedLabel = tooltipLabel(label, t);
 
   return (
     <div className="chart-tooltip">
@@ -121,6 +127,8 @@ function ChartPanel({
   empty?: boolean;
   children: ReactNode;
 }) {
+  const { t } = useI18n();
+
   return (
     <section className="panel chart-panel" aria-label={title}>
       <header className="chart-header">
@@ -129,34 +137,35 @@ function ChartPanel({
           <h2>{title}</h2>
         </div>
       </header>
-      {loading ? <ChartState>Loading dashboard data...</ChartState> : empty ? <ChartState>No data yet.</ChartState> : children}
+      {loading ? <ChartState>{t("common.loadingDashboard")}</ChartState> : empty ? <ChartState>{t("common.noData")}</ChartState> : children}
     </section>
   );
 }
 
 function KpiTiles({ summary, loading }: { summary?: DashboardSummary; loading: boolean }) {
+  const { t } = useI18n();
   const tiles = [
-    { label: "Open vacancies", value: summary?.openVacancies },
-    { label: "Total candidates", value: summary?.totalCandidates },
-    { label: "Active applications", value: summary?.activeApplications },
+    { label: t("dashboard.openVacancies"), value: summary?.openVacancies },
+    { label: t("dashboard.totalCandidates"), value: summary?.totalCandidates },
+    { label: t("dashboard.activeApplications"), value: summary?.activeApplications },
     {
-      label: "Offers this month",
+      label: t("dashboard.offersThisMonth"),
       value: summary?.offersThisMonth,
-      subline: `${formatCount(summary?.rejectedThisMonth ?? 0)} rejected this month`,
+      subline: `${formatCount(summary?.rejectedThisMonth ?? 0)} ${t("dashboard.rejectedThisMonth")}`,
     },
     {
-      label: "Avg score active",
+      label: t("dashboard.avgScoreActive"),
       value: summary?.avgScoreActive === null || summary?.avgScoreActive === undefined ? "--" : Math.round(summary.avgScoreActive),
     },
   ];
 
   return (
-    <section className="kpi-grid" aria-label="Dashboard summary">
+    <section className="kpi-grid" aria-label={t("dashboard.summary")}>
       {tiles.map((tile) => (
         <article className="panel kpi-tile" key={tile.label}>
           <span>{tile.label}</span>
           <strong>{loading ? "--" : typeof tile.value === "number" ? formatCount(tile.value) : tile.value ?? "--"}</strong>
-          {tile.subline ? <small>{loading ? "-- rejected this month" : tile.subline}</small> : null}
+          {tile.subline ? <small>{loading ? `-- ${t("dashboard.rejectedThisMonth")}` : tile.subline}</small> : null}
         </article>
       ))}
     </section>
@@ -174,16 +183,17 @@ function TimelineChart({
   days: number;
   onDaysChange: (days: (typeof rangeOptions)[number]) => void;
 }) {
+  const { t } = useI18n();
   const hasOffers = data.some((item) => item.offers > 0);
 
   return (
-    <section className="panel chart-panel chart-panel-wide" aria-label="Applications timeline">
+    <section className="panel chart-panel chart-panel-wide" aria-label={t("dashboard.applicationsTimeline")}>
       <header className="chart-header">
         <div>
-          <p className="placeholder-kicker">Timeline</p>
-          <h2>Applications per day</h2>
+          <p className="placeholder-kicker">{t("dashboard.timeline")}</p>
+          <h2>{t("dashboard.applicationsPerDay")}</h2>
         </div>
-        <div className="range-toggle" aria-label="Timeline range">
+        <div className="range-toggle" aria-label={t("dashboard.timelineRange")}>
           {rangeOptions.map((option) => (
             <button
               className={`toggle-chip ${days === option ? "is-selected" : ""}`}
@@ -191,16 +201,16 @@ function TimelineChart({
               onClick={() => onDaysChange(option)}
               type="button"
             >
-              {option}d
+              {option}{t("dashboard.daysShort")}
             </button>
           ))}
         </div>
       </header>
 
       {loading ? (
-        <ChartState>Loading dashboard data...</ChartState>
+        <ChartState>{t("common.loadingDashboard")}</ChartState>
       ) : data.length === 0 ? (
-        <ChartState>No applications in this range.</ChartState>
+        <ChartState>{t("dashboard.noApplicationsRange")}</ChartState>
       ) : (
         <>
           <div className="chart-frame chart-frame-tall">
@@ -234,7 +244,7 @@ function TimelineChart({
                   activeDot={{ r: 4, fill: chartPrimary, stroke: chartInk }}
                   dataKey="applications"
                   fill="url(#applicationsFill)"
-                  name="Applications"
+                  name={t("dashboard.applications")}
                   stroke={chartPrimary}
                   strokeWidth={2}
                   type="monotone"
@@ -245,7 +255,7 @@ function TimelineChart({
 
           {hasOffers ? (
             <div className="offers-strip">
-              <span>Offers</span>
+              <span>{t("dashboard.offers")}</span>
               <div className="chart-frame chart-frame-small">
                 <ResponsiveContainer height="100%" width="100%">
                   <AreaChart data={data} margin={{ top: 8, right: 16, bottom: 0, left: 0 }}>
@@ -253,7 +263,7 @@ function TimelineChart({
                     <XAxis dataKey="date" hide />
                     <YAxis allowDecimals={false} axisLine={false} tick={{ fill: chartMuted, fontSize: 11 }} tickLine={false} width={28} />
                     <Tooltip content={<DashboardTooltip />} cursor={{ stroke: chartMuted, strokeDasharray: "3 3" }} />
-                    <Area dataKey="offers" fill="rgba(172, 132, 51, 0.08)" name="Offers" stroke={chartMuted} strokeWidth={2} type="monotone" />
+                    <Area dataKey="offers" fill="rgba(172, 132, 51, 0.08)" name={t("dashboard.offers")} stroke={chartMuted} strokeWidth={2} type="monotone" />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
@@ -284,10 +294,11 @@ function FunnelEndLabel(props: LabelProps) {
 }
 
 function FunnelChart({ data, loading }: { data: DashboardFunnelItem[]; loading: boolean }) {
+  const { t } = useI18n();
   const forwardData = forwardStages.map((stage) => data.find((item) => item.stage === stage) ?? { stage, count: 0, conversionPct: 0 });
 
   return (
-    <ChartPanel eyebrow="Funnel" empty={forwardData.every((item) => item.count === 0)} loading={loading} title="Forward stages">
+    <ChartPanel eyebrow={t("dashboard.funnel")} empty={forwardData.every((item) => item.count === 0)} loading={loading} title={t("dashboard.forwardStages")}>
       <div className="chart-frame">
         <ResponsiveContainer height="100%" width="100%">
           <BarChart barCategoryGap={2} data={forwardData} layout="vertical" margin={{ top: 4, right: 86, bottom: 0, left: 12 }}>
@@ -298,13 +309,13 @@ function FunnelChart({ data, loading }: { data: DashboardFunnelItem[]; loading: 
               dataKey="stage"
               stroke={chartQuiet}
               tick={{ fill: chartMuted, fontSize: 12 }}
-              tickFormatter={(value: Stage) => stageLabel(value)}
+              tickFormatter={(value: Stage) => t(stageLabelKeys[value])}
               tickLine={false}
               type="category"
               width={112}
             />
             <Tooltip content={<DashboardTooltip />} cursor={{ fill: "rgba(166, 173, 184, 0.08)" }} />
-            <Bar dataKey="count" fill={chartPrimary} name="Applications" radius={[0, 4, 4, 0]}>
+            <Bar dataKey="count" fill={chartPrimary} name={t("dashboard.applications")} radius={[0, 4, 4, 0]}>
               <LabelList content={<FunnelEndLabel />} />
             </Bar>
           </BarChart>
@@ -363,19 +374,21 @@ function DemandBars({
 }
 
 function StackDemandChart({ data, loading }: { data: DashboardStackDemandItem[]; loading: boolean }) {
+  const { t } = useI18n();
+
   return (
-    <ChartPanel eyebrow="Demand" empty={data.length === 0} loading={loading} title="Stack demand">
-      <div className="demand-legend" aria-label="Stack demand legend">
+    <ChartPanel eyebrow={t("dashboard.demand")} empty={data.length === 0} loading={loading} title={t("dashboard.stackDemand")}>
+      <div className="demand-legend" aria-label={t("dashboard.stackDemandLegend")}>
         <span>
-          <i /> Open vacancies
+          <i /> {t("dashboard.openVacancies")}
         </span>
         <span>
-          <i /> Active applications
+          <i /> {t("dashboard.activeApplications")}
         </span>
       </div>
       <div className="demand-grid">
-        <DemandBars data={data} metric="openVacancies" name="Open vacancies" />
-        <DemandBars data={data} metric="activeApplications" name="Active applications" />
+        <DemandBars data={data} metric="openVacancies" name={t("dashboard.openVacancies")} />
+        <DemandBars data={data} metric="activeApplications" name={t("dashboard.activeApplications")} />
       </div>
     </ChartPanel>
   );
@@ -395,13 +408,14 @@ function StageDistributionLabel(props: LabelProps) {
 }
 
 function StageDistributionChart({ summary, loading }: { summary?: DashboardSummary; loading: boolean }) {
+  const { t } = useI18n();
   const data = stages.map((stage) => ({
     stage,
     count: summary?.applicationsByStage[stage] ?? 0,
   }));
 
   return (
-    <ChartPanel eyebrow="Distribution" empty={data.every((item) => item.count === 0)} loading={loading} title="Applications by stage">
+    <ChartPanel eyebrow={t("dashboard.distribution")} empty={data.every((item) => item.count === 0)} loading={loading} title={t("dashboard.applicationsByStage")}>
       <div className="chart-frame chart-frame-compact">
         <ResponsiveContainer height="100%" width="100%">
           <BarChart barCategoryGap={2} data={data} layout="vertical" margin={{ top: 4, right: 46, bottom: 0, left: 12 }}>
@@ -412,13 +426,13 @@ function StageDistributionChart({ summary, loading }: { summary?: DashboardSumma
               dataKey="stage"
               stroke={chartQuiet}
               tick={{ fill: chartMuted, fontSize: 12 }}
-              tickFormatter={(value: Stage) => stageLabel(value)}
+              tickFormatter={(value: Stage) => t(stageLabelKeys[value])}
               tickLine={false}
               type="category"
               width={112}
             />
             <Tooltip content={<DashboardTooltip />} cursor={{ fill: "rgba(166, 173, 184, 0.08)" }} />
-            <Bar dataKey="count" name="Applications" radius={[0, 4, 4, 0]}>
+            <Bar dataKey="count" name={t("dashboard.applications")} radius={[0, 4, 4, 0]}>
               {data.map((item) => (
                 <Cell fill={item.stage === "RECHAZADO" ? chartCoral : chartPrimary} key={item.stage} />
               ))}
@@ -432,6 +446,7 @@ function StageDistributionChart({ summary, loading }: { summary?: DashboardSumma
 }
 
 export function DashboardPage() {
+  const { t } = useI18n();
   const [days, setDays] = useState<(typeof rangeOptions)[number]>(30);
   const summary = useQuery({ queryKey: ["dashboard", "summary"], queryFn: resources.dashboard.summary });
   const funnel = useQuery({ queryKey: ["dashboard", "funnel"], queryFn: resources.dashboard.funnel });
@@ -450,10 +465,10 @@ export function DashboardPage() {
     <section className="module-page dashboard-page" aria-labelledby="dashboard-title">
       <header className="page-header">
         <div>
-          <p className="placeholder-kicker">Metrics</p>
-          <h1 id="dashboard-title">Dashboard</h1>
+          <p className="placeholder-kicker">{t("dashboard.kicker")}</p>
+          <h1 id="dashboard-title">{t("dashboard.title")}</h1>
         </div>
-        <span className="chip">Live API</span>
+        <span className="chip">{t("common.liveApi")}</span>
       </header>
 
       <KpiTiles loading={summary.isLoading} summary={summary.data} />

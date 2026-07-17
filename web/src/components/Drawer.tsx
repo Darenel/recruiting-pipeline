@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef } from "react";
+import { useI18n } from "../i18n";
 
 type DrawerProps = {
   open: boolean;
@@ -8,6 +9,7 @@ type DrawerProps = {
 };
 
 export function Drawer({ open, title, onClose, children }: DrawerProps) {
+  const { t } = useI18n();
   const titleId = useId();
   const ref = useRef<HTMLDivElement>(null);
 
@@ -49,7 +51,7 @@ export function Drawer({ open, title, onClose, children }: DrawerProps) {
       >
         <header className="drawer-header">
           <h2 id={titleId}>{title}</h2>
-          <button aria-label="Close" className="ghost icon-button" onClick={onClose} type="button">
+          <button aria-label={t("common.close")} className="ghost icon-button" onClick={onClose} type="button">
             x
           </button>
         </header>

@@ -201,10 +201,17 @@ th {
 }
 
 .login-page {
+  position: relative;
   min-height: 100vh;
   display: grid;
   place-items: center;
   padding: 24px;
+}
+
+.login-lang {
+  position: absolute;
+  top: 24px;
+  right: 24px;
 }
 
 .login-panel {
@@ -365,6 +372,15 @@ th {
   color: var(--ambar);
   background: var(--ambar-soft);
   font-size: 12px;
+}
+
+.lang-toggle {
+  min-height: 34px;
+  padding: 0 10px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0;
+  white-space: nowrap;
 }
 
 .content {

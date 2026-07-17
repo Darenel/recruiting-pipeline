@@ -11,6 +11,7 @@ import {
   useToast,
 } from "../components";
 import { ApiError } from "../lib/api";
+import { useI18n, type TranslationKey } from "../i18n";
 import { resources } from "../lib/resources";
 import {
   ApplicationDetail,
@@ -22,8 +23,9 @@ import {
   Stage,
   UUID,
   Vacancy,
+  InterviewKind,
 } from "../lib/types";
-import { formatDate, humanize } from "../utils";
+import { formatDate } from "../utils";
 
 type MoveRequest = {
   id: UUID;
@@ -32,12 +34,19 @@ type MoveRequest = {
   note: string;
 };
 
-const stageLabels: Record<Stage, string> = {
-  POSTULADO: "Postulado",
-  ENTREVISTA: "Entrevista",
-  PRUEBA_TECNICA: "Prueba tecnica",
-  OFERTA: "Oferta",
-  RECHAZADO: "Rechazado",
+const stageLabelKeys: Record<Stage, TranslationKey> = {
+  POSTULADO: "stage.POSTULADO",
+  ENTREVISTA: "stage.ENTREVISTA",
+  PRUEBA_TECNICA: "stage.PRUEBA_TECNICA",
+  OFERTA: "stage.OFERTA",
+  RECHAZADO: "stage.RECHAZADO",
+};
+
+const interviewKindLabelKeys: Record<InterviewKind, TranslationKey> = {
+  PHONE: "interview.PHONE",
+  TECHNICAL: "interview.TECHNICAL",
+  CULTURAL: "interview.CULTURAL",
+  FINAL: "interview.FINAL",
 };
 
 function normalizeBoard(board?: Board): Board {
@@ -77,6 +86,7 @@ export function BoardPage() {
   const queryClient = useQueryClient();
   const { role } = useAuth();
   const { showToast } = useToast();
+  const { t } = useI18n();
   const [vacancySearch, setVacancySearch] = useState("");
   const [vacancyId, setVacancyId] = useState<UUID | "">("");
   const [dragOverStage, setDragOverStage] = useState<Stage | null>(null);
@@ -116,7 +126,7 @@ export function BoardPage() {
       if (context?.previous) {
         queryClient.setQueryData(boardQueryKey, context.previous);
       }
-      showToast(error instanceof ApiError ? error.message : "Could not move the application.", "error");
+      showToast(error instanceof ApiError ? error.message : t("board.moveError"), "error");
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["applications", selectedApplicationId] });
@@ -163,21 +173,21 @@ export function BoardPage() {
     <section className="module-page" aria-labelledby="board-title">
       <header className="page-header">
         <div>
-          <p className="placeholder-kicker">Pipeline</p>
-          <h1 id="board-title">Board</h1>
+          <p className="placeholder-kicker">{t("board.kicker")}</p>
+          <h1 id="board-title">{t("board.title")}</h1>
         </div>
         <button className="primary" onClick={openNewApplication} type="button">
-          New application
+          {t("board.newApplication")}
         </button>
       </header>
 
       <div className="toolbar panel">
         <label className="searchable-select">
-          Open vacancy
+          {t("board.openVacancy")}
           <input
             list="open-vacancies"
             onChange={(event: ChangeEvent<HTMLInputElement>) => setVacancySearch(event.target.value)}
-            placeholder="Search open vacancies"
+            placeholder={t("board.searchOpenVacancies")}
             type="search"
             value={vacancySearch}
           />
@@ -187,8 +197,8 @@ export function BoardPage() {
             ))}
           </datalist>
         </label>
-        <select aria-label="Filter by vacancy" onChange={(event) => setVacancyId(event.target.value)} value={vacancyId}>
-          <option value="">All open vacancies</option>
+        <select aria-label={t("board.filterByVacancy")} onChange={(event) => setVacancyId(event.target.value)} value={vacancyId}>
+          <option value="">{t("board.allOpenVacancies")}</option>
           {vacancies.data?.data.map((vacancy) => (
             <option key={vacancy.id} value={vacancy.id}>
               {vacancy.title} - {vacancy.companyName}
@@ -197,7 +207,7 @@ export function BoardPage() {
         </select>
       </div>
 
-      <div className="board-preview" aria-busy={board.isLoading} aria-label="Pipeline stages">
+      <div className="board-preview" aria-busy={board.isLoading} aria-label={t("board.pipelineStages")}>
         {boardData.columns.map((column: BoardColumn) => (
           <section
             className={`stage-column stage-${column.stage.toLowerCase()} ${dragOverStage === column.stage ? "is-drop-target" : ""}`}
@@ -209,7 +219,7 @@ export function BoardPage() {
             onDrop={(event) => handleDrop(event, column.stage)}
           >
             <header className="stage-header">
-              <span className="stage-title">{stageLabels[column.stage]}</span>
+              <span className="stage-title">{t(stageLabelKeys[column.stage])}</span>
               <span className="chip">{column.applications.length}</span>
             </header>
             {column.applications.map((card) => (
@@ -229,8 +239,8 @@ export function BoardPage() {
                 <span>{card.headline}</span>
                 <div className="card-meta">
                   <ScoreBadge score={card.score} />
-                  <span>{card.daysInStage}d</span>
-                  <span aria-label={`${card.interviewCount} interviews`}>@ {card.interviewCount}</span>
+                  <span>{card.daysInStage}{t("board.daysInStageShort")}</span>
+                  <span aria-label={`${card.interviewCount} ${t("board.interviews")}`}>@ {card.interviewCount}</span>
                 </div>
                 <div className="move-menu" onClick={(event) => event.stopPropagation()}>
                   <button
@@ -240,10 +250,10 @@ export function BoardPage() {
                     onClick={() => setMoveMenuId(moveMenuId === card.id ? null : card.id)}
                     type="button"
                   >
-                    Move to...
+                    {t("board.moveTo")}
                   </button>
                   {moveMenuId === card.id ? (
-                    <div className="move-listbox" role="listbox" aria-label={`Move ${card.candidateName}`}>
+                    <div className="move-listbox" role="listbox" aria-label={`${t("board.moveCandidate")} ${card.candidateName}`}>
                       {stages
                         .filter((stage) => stage !== column.stage)
                         .map((stage) => (
@@ -257,7 +267,7 @@ export function BoardPage() {
                             role="option"
                             type="button"
                           >
-                            {stageLabels[stage]}
+                            {t(stageLabelKeys[stage])}
                           </button>
                         ))}
                     </div>
@@ -272,7 +282,7 @@ export function BoardPage() {
                     }}
                     type="button"
                   >
-                    Reopen
+                    {t("board.reopen")}
                   </button>
                 ) : null}
               </article>
@@ -288,25 +298,25 @@ export function BoardPage() {
         open={Boolean(selectedApplicationId)}
       />
 
-      <Modal onClose={() => setMoveDraft(null)} open={Boolean(moveDraft)} title="Move application">
+      <Modal onClose={() => setMoveDraft(null)} open={Boolean(moveDraft)} title={t("board.moveApplication")}>
         <form className="modal-form" onSubmit={submitMove}>
           <p className="muted-copy">
-            Move from {moveDraft ? stageLabels[moveDraft.fromStage] : ""} to {moveDraft ? stageLabels[moveDraft.toStage] : ""}.
+            {t("board.moveFrom")} {moveDraft ? t(stageLabelKeys[moveDraft.fromStage]) : ""} {t("board.to")} {moveDraft ? t(stageLabelKeys[moveDraft.toStage]) : ""}.
           </p>
           <FormField
             as="textarea"
-            label="Note"
+            label={t("board.note")}
             maxLength={2000}
             onChange={(event) => setMoveDraft((current) => (current ? { ...current, note: event.target.value } : current))}
-            placeholder="Optional context for the stage history"
+            placeholder={t("board.notePlaceholder")}
             value={moveDraft?.note ?? ""}
           />
           <footer className="modal-actions">
             <button className="ghost" onClick={() => setMoveDraft(null)} type="button">
-              Cancel
+              {t("common.cancel")}
             </button>
             <button className="primary" disabled={moveMutation.isPending} type="submit">
-              Move
+              {t("board.move")}
             </button>
           </footer>
         </form>
@@ -334,6 +344,7 @@ function CandidateDrawer({
 }) {
   const queryClient = useQueryClient();
   const { showToast } = useToast();
+  const { t } = useI18n();
   const [scheduledAt, setScheduledAt] = useState("");
   const [kind, setKind] = useState("PHONE");
   const [rating, setRating] = useState("3");
@@ -349,13 +360,13 @@ function CandidateDrawer({
         rating: rating ? Number(rating) : null,
       }),
     onSuccess: () => {
-      showToast("Interview added.", "success");
+      showToast(t("drawer.interviewAdded"), "success");
       setScheduledAt("");
       setNotes("");
       queryClient.invalidateQueries({ queryKey: ["applications", application?.id] });
       queryClient.invalidateQueries({ queryKey: ["board"] });
     },
-    onError: (error) => showToast(error instanceof ApiError ? error.message : "Could not add interview.", "error"),
+    onError: (error) => showToast(error instanceof ApiError ? error.message : t("drawer.addInterviewError"), "error"),
   });
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -364,9 +375,9 @@ function CandidateDrawer({
   }
 
   return (
-    <Drawer onClose={onClose} open={open} title={application?.candidate.name ?? "Application"}>
+    <Drawer onClose={onClose} open={open} title={application?.candidate.name ?? t("drawer.application")}>
       {loading || !application ? (
-        <div className="drawer-body">Loading...</div>
+        <div className="drawer-body">{t("common.loading")}</div>
       ) : (
         <div className="drawer-body">
           <section className="detail-summary">
@@ -379,13 +390,13 @@ function CandidateDrawer({
           </section>
 
           <section className="drawer-section">
-            <h3>Stage history</h3>
+            <h3>{t("drawer.stageHistory")}</h3>
             <ol className="timeline">
               {application.history.map((event) => (
                 <li key={event.id}>
-                  <strong>{stageLabels[event.toStage]}</strong>
+                  <strong>{t(stageLabelKeys[event.toStage])}</strong>
                   <span>
-                    {formatDate(event.createdAt)} by {event.byUserName}
+                    {formatDate(event.createdAt)} {t("common.by")} {event.byUserName}
                   </span>
                   {event.note ? <p>{event.note}</p> : null}
                 </li>
@@ -394,40 +405,40 @@ function CandidateDrawer({
           </section>
 
           <section className="drawer-section">
-            <h3>Interviews</h3>
+            <h3>{t("drawer.interviews")}</h3>
             <div className="interview-list">
               {application.interviews.map((interview) => (
                 <article className="interview-item" key={interview.id}>
-                  <strong>{humanize(interview.kind)}</strong>
+                  <strong>{t(interviewKindLabelKeys[interview.kind])}</strong>
                   <span>{formatDate(interview.scheduledAt)}</span>
-                  <span aria-label={`${interview.rating ?? 0} stars`}>{"*".repeat(interview.rating ?? 0)}</span>
+                  <span aria-label={`${interview.rating ?? 0} ${t("drawer.stars")}`}>{"*".repeat(interview.rating ?? 0)}</span>
                   {interview.notes ? <p>{interview.notes}</p> : null}
                 </article>
               ))}
-              {application.interviews.length === 0 ? <p className="muted-copy">No interviews yet.</p> : null}
+              {application.interviews.length === 0 ? <p className="muted-copy">{t("drawer.noInterviews")}</p> : null}
             </div>
 
             {canAddInterview ? (
               <form className="drawer-form" onSubmit={handleSubmit}>
-                <FormField label="Scheduled at" onChange={(event) => setScheduledAt(event.target.value)} required type="datetime-local" value={scheduledAt} />
-                <FormField as="select" label="Kind" onChange={(event) => setKind(event.target.value)} value={kind}>
+                <FormField label={t("drawer.scheduledAt")} onChange={(event) => setScheduledAt(event.target.value)} required type="datetime-local" value={scheduledAt} />
+                <FormField as="select" label={t("drawer.kind")} onChange={(event) => setKind(event.target.value)} value={kind}>
                   {interviewKinds.map((item) => (
                     <option key={item} value={item}>
-                      {humanize(item)}
+                      {t(interviewKindLabelKeys[item])}
                     </option>
                   ))}
                 </FormField>
-                <FormField as="select" label="Rating" onChange={(event) => setRating(event.target.value)} value={rating}>
-                  <option value="">Unrated</option>
+                <FormField as="select" label={t("drawer.rating")} onChange={(event) => setRating(event.target.value)} value={rating}>
+                  <option value="">{t("drawer.unrated")}</option>
                   {[1, 2, 3, 4, 5].map((item) => (
                     <option key={item} value={item}>
                       {item}
                     </option>
                   ))}
                 </FormField>
-                <FormField as="textarea" label="Notes" onChange={(event) => setNotes(event.target.value)} value={notes} />
+                <FormField as="textarea" label={t("drawer.notes")} onChange={(event) => setNotes(event.target.value)} value={notes} />
                 <button className="primary" disabled={addInterview.isPending} type="submit">
-                  Add interview
+                  {t("drawer.addInterview")}
                 </button>
               </form>
             ) : null}

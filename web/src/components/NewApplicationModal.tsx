@@ -1,6 +1,7 @@
 import { FormEvent, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiError } from "../lib/api";
+import { useI18n } from "../i18n";
 import { resources } from "../lib/resources";
 import { Candidate, UUID, Vacancy } from "../lib/types";
 import { FormField } from "./FormField";
@@ -17,6 +18,7 @@ type NewApplicationModalProps = {
 export function NewApplicationModal({ open, vacancy, onClose }: NewApplicationModalProps) {
   const queryClient = useQueryClient();
   const { showToast } = useToast();
+  const { t } = useI18n();
   const [candidateSearch, setCandidateSearch] = useState("");
   const [selectedCandidateId, setSelectedCandidateId] = useState("");
   const [selectedVacancyId, setSelectedVacancyId] = useState<UUID>(vacancy?.id ?? "");
@@ -39,7 +41,7 @@ export function NewApplicationModal({ open, vacancy, onClose }: NewApplicationMo
   const createMutation = useMutation({
     mutationFn: () => resources.applications.create(selectedCandidateId, vacancy?.id ?? selectedVacancyId),
     onSuccess: () => {
-      showToast("Application created.", "success");
+      showToast(t("application.created"), "success");
       setError(null);
       setSelectedCandidateId("");
       queryClient.invalidateQueries({ queryKey: ["board"] });
@@ -47,7 +49,7 @@ export function NewApplicationModal({ open, vacancy, onClose }: NewApplicationMo
       onClose();
     },
     onError: (nextError) => {
-      setError(nextError instanceof ApiError ? nextError.message : "Could not create the application.");
+      setError(nextError instanceof ApiError ? nextError.message : t("application.createError"));
     },
   });
 
@@ -58,23 +60,23 @@ export function NewApplicationModal({ open, vacancy, onClose }: NewApplicationMo
   }
 
   return (
-    <Modal onClose={onClose} open={open} title="New application" size="wide">
+    <Modal onClose={onClose} open={open} title={t("application.newTitle")} size="wide">
       <form className="modal-form" onSubmit={handleSubmit}>
         {vacancy ? (
           <div className="selected-summary">
-            <span>Vacancy</span>
+            <span>{t("application.vacancy")}</span>
             <strong>{vacancy.title}</strong>
             <small>{vacancy.companyName}</small>
           </div>
         ) : (
           <FormField
             as="select"
-            label="Vacancy"
+            label={t("application.vacancy")}
             onChange={(event) => setSelectedVacancyId(event.target.value)}
             required
             value={selectedVacancyId}
           >
-            <option value="">Pick an open vacancy</option>
+            <option value="">{t("application.pickOpenVacancy")}</option>
             {vacancyOptions.map((item) => (
               <option key={item.id} value={item.id}>
                 {item.title} - {item.companyName}
@@ -84,8 +86,8 @@ export function NewApplicationModal({ open, vacancy, onClose }: NewApplicationMo
         )}
 
         <div className="candidate-picker">
-          <SearchInput onChange={setCandidateSearch} placeholder="Search candidates" value={candidateSearch} />
-          <div className="picker-list" role="listbox" aria-label="Candidates">
+          <SearchInput onChange={setCandidateSearch} placeholder={t("candidates.search")} value={candidateSearch} />
+          <div className="picker-list" role="listbox" aria-label={t("application.candidates")}>
             {candidateOptions.map((candidate: Candidate) => (
               <button
                 aria-selected={selectedCandidateId === candidate.id}
@@ -106,10 +108,10 @@ export function NewApplicationModal({ open, vacancy, onClose }: NewApplicationMo
 
         <footer className="modal-actions">
           <button className="ghost" onClick={onClose} type="button">
-            Cancel
+            {t("common.cancel")}
           </button>
           <button className="primary" disabled={!selectedCandidateId || !(vacancy?.id ?? selectedVacancyId) || createMutation.isPending} type="submit">
-            {createMutation.isPending ? "Creating..." : "Create application"}
+            {createMutation.isPending ? t("common.creating") : t("application.create")}
           </button>
         </footer>
       </form>

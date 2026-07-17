@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { useI18n } from "../i18n";
 
 export type DataTableColumn<T> = {
   key: string;
@@ -20,10 +21,12 @@ export function DataTable<T>({
   rows,
   getRowKey,
   loading = false,
-  emptyMessage = "No records found.",
+  emptyMessage,
   actions,
 }: DataTableProps<T>) {
+  const { t } = useI18n();
   const columnCount = columns.length + (actions ? 1 : 0);
+  const resolvedEmptyMessage = emptyMessage ?? t("common.noRecords");
 
   return (
     <div className="table-wrap">
@@ -33,17 +36,17 @@ export function DataTable<T>({
             {columns.map((column) => (
               <th key={column.key}>{column.header}</th>
             ))}
-            {actions ? <th aria-label="Actions" /> : null}
+            {actions ? <th aria-label={t("common.actions")} /> : null}
           </tr>
         </thead>
         <tbody>
           {loading ? (
             <tr>
-              <td colSpan={columnCount}>Loading...</td>
+              <td colSpan={columnCount}>{t("common.loading")}</td>
             </tr>
           ) : rows.length === 0 ? (
             <tr>
-              <td colSpan={columnCount}>{emptyMessage}</td>
+              <td colSpan={columnCount}>{resolvedEmptyMessage}</td>
             </tr>
           ) : (
             rows.map((row) => (

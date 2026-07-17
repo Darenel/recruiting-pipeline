@@ -2,6 +2,7 @@ export * from "./ConfirmDialog";
 export * from "./DataTable";
 export * from "./Drawer";
 export * from "./FormField";
+export * from "./LangToggle";
 export * from "./Modal";
 export * from "./NewApplicationModal";
 export * from "./Pagination";
