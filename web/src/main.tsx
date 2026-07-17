@@ -6,7 +6,10 @@ import App from "./App";
 import { AuthProvider } from "./auth";
 import { ToastProvider } from "./components";
 import { I18nProvider } from "./i18n";
+import { initializeTheme } from "./lib/theme";
 import "./styles/app.css";
+
+initializeTheme();
 
 const queryClient = new QueryClient();
 

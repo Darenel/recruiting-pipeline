@@ -12,6 +12,10 @@
   color-scheme: dark;
 }
 
+[data-theme="light"] {
+  color-scheme: light;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -26,8 +30,8 @@ body {
   min-height: 100vh;
   margin: 0;
   background:
-    linear-gradient(135deg, rgba(224, 180, 92, 0.08), transparent 32%),
-    radial-gradient(circle at 85% 0%, rgba(224, 120, 98, 0.08), transparent 30%),
+    linear-gradient(135deg, var(--wash-ambar), transparent 32%),
+    radial-gradient(circle at 85% 0%, var(--wash-coral), transparent 30%),
     var(--paper);
 }
 
@@ -82,7 +86,7 @@ button.ghost {
 
 button.danger,
 .button.danger {
-  border-color: rgba(224, 120, 98, 0.42);
+  border-color: var(--coral-line);
   color: var(--coral);
   background: var(--coral-soft);
 }
@@ -113,7 +117,7 @@ textarea {
   border-radius: var(--r-control);
   padding: 0 12px;
   color: var(--ink);
-  background: rgba(20, 23, 28, 0.72);
+  background: var(--surface-control);
 }
 
 textarea {
@@ -153,7 +157,7 @@ th {
 .panel {
   border: 1px solid var(--line);
   border-radius: var(--r-container);
-  background: rgba(28, 32, 39, 0.88);
+  background: var(--surface-panel);
   box-shadow: var(--shadow-panel);
 }
 
@@ -167,7 +171,7 @@ th {
   border-radius: var(--r-small);
   padding: 4px 9px;
   color: var(--muted);
-  background: rgba(20, 23, 28, 0.72);
+  background: var(--surface-control);
   font-family: var(--font-mono);
   font-size: 12px;
   line-height: 1;
@@ -176,28 +180,28 @@ th {
 .badge-primary,
 .chip-primary {
   color: var(--ambar);
-  border-color: rgba(224, 180, 92, 0.42);
+  border-color: var(--ambar-line);
   background: var(--ambar-soft);
 }
 
 .badge-success,
 .chip-success {
   color: var(--menta);
-  border-color: rgba(111, 207, 178, 0.42);
+  border-color: var(--menta-line);
   background: var(--menta-soft);
 }
 
 .badge-danger,
 .chip-danger {
   color: var(--coral);
-  border-color: rgba(224, 120, 98, 0.42);
+  border-color: var(--coral-line);
   background: var(--coral-soft);
 }
 
 .badge-quiet {
   color: var(--quiet);
   border-color: var(--line);
-  background: rgba(20, 23, 28, 0.72);
+  background: var(--surface-control);
 }
 
 .login-page {
@@ -232,7 +236,7 @@ th {
 
 .demo-note {
   margin: -14px 0 22px;
-  border: 1px solid rgba(224, 180, 92, 0.42);
+  border: 1px solid var(--ambar-line);
   border-radius: var(--r-control);
   padding: 10px 12px;
   color: var(--ambar);
@@ -254,14 +258,14 @@ th {
 
 .error-box {
   color: var(--coral);
-  border-color: rgba(224, 120, 98, 0.36);
+  border-color: var(--coral-line-soft);
   background: var(--coral-soft);
 }
 
 .hint-box {
   margin-top: 22px;
   color: var(--muted);
-  background: rgba(20, 23, 28, 0.62);
+  background: var(--surface-hint);
 }
 
 .hint-box p {
@@ -300,7 +304,7 @@ th {
   min-height: 78px;
   border-bottom: 1px solid var(--line);
   padding: 0 28px;
-  background: rgba(20, 23, 28, 0.9);
+  background: var(--surface-header);
   backdrop-filter: blur(18px);
 }
 
@@ -341,7 +345,7 @@ th {
 
 .tab-link.active {
   color: var(--ambar);
-  border-color: rgba(224, 180, 92, 0.42);
+  border-color: var(--ambar-line);
   background: var(--ambar-soft);
 }
 
@@ -361,12 +365,12 @@ th {
   border-radius: var(--r-control);
   padding: 0 11px;
   color: var(--ink);
-  background: rgba(28, 32, 39, 0.74);
+  background: var(--surface-user);
   font-weight: 650;
 }
 
 .role-badge {
-  border: 1px solid rgba(224, 180, 92, 0.42);
+  border: 1px solid var(--ambar-line);
   border-radius: var(--r-small);
   padding: 5px 9px;
   color: var(--ambar);
@@ -524,7 +528,19 @@ th {
   border: 1px dashed var(--line);
   border-radius: var(--r-control);
   color: var(--muted);
-  background: rgba(20, 23, 28, 0.42);
+  background: var(--surface-state);
+}
+
+.recharts-cartesian-grid line {
+  stroke: var(--chart-line);
+}
+
+.recharts-tooltip-cursor {
+  fill: var(--chart-cursor);
+}
+
+.offers-strip .recharts-area-area {
+  fill: var(--chart-offer-soft);
 }
 
 .chart-tooltip {
@@ -619,20 +635,20 @@ th {
   border: 1px solid var(--line);
   border-radius: var(--r-control);
   padding: 14px;
-  background: rgba(28, 32, 39, 0.74);
+  background: var(--surface-column);
 }
 
 .stage-column.is-drop-target {
   border-color: var(--ambar);
-  background: rgba(224, 180, 92, 0.08);
+  background: var(--wash-ambar);
 }
 
 .stage-oferta {
-  border-color: rgba(111, 207, 178, 0.36);
+  border-color: var(--menta-line-soft);
 }
 
 .stage-rechazado {
-  border-color: rgba(224, 120, 98, 0.36);
+  border-color: var(--coral-line-soft);
 }
 
 .stage-header,
@@ -666,11 +682,11 @@ th {
   border: 1px solid var(--line);
   border-radius: var(--r-control);
   padding: 12px;
-  background: rgba(20, 23, 28, 0.78);
+  background: var(--surface-card);
 }
 
 .candidate-card:hover {
-  border-color: rgba(224, 180, 92, 0.52);
+  border-color: var(--ambar-line-strong);
 }
 
 .candidate-card strong {
@@ -781,7 +797,7 @@ th {
   position: fixed;
   inset: 0;
   z-index: 30;
-  background: rgba(0, 0, 0, 0.54);
+  background: var(--backdrop);
 }
 
 .modal-backdrop {
@@ -871,7 +887,7 @@ th {
   border: 1px solid var(--line);
   border-radius: var(--r-control);
   padding: 14px;
-  background: rgba(20, 23, 28, 0.58);
+  background: var(--surface-detail);
 }
 
 .detail-summary span,
@@ -904,7 +920,7 @@ th {
   border: 1px solid var(--line);
   border-radius: var(--r-control);
   padding: 12px;
-  background: rgba(20, 23, 28, 0.52);
+  background: var(--surface-item);
 }
 
 .timeline p,
@@ -956,12 +972,12 @@ th {
 
 .toast-success {
   color: var(--menta);
-  border-color: rgba(111, 207, 178, 0.42);
+  border-color: var(--menta-line);
 }
 
 .toast-error {
   color: var(--coral);
-  border-color: rgba(224, 120, 98, 0.42);
+  border-color: var(--coral-line);
 }
 
 @media (max-width: 980px) {

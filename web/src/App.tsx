@@ -12,6 +12,7 @@ import { ProtectedRoute, RoleGate, useAuth } from "./auth";
 import { LangToggle } from "./components";
 import { useI18n, type TranslationKey } from "./i18n";
 import { ApiError, isDemoMode } from "./lib/api";
+import { getTheme, setTheme, type Theme } from "./lib/theme";
 import { BoardPage } from "./pages/BoardPage";
 import { CandidatesPage } from "./pages/CandidatesPage";
 import { CompaniesPage } from "./pages/CompaniesPage";
@@ -129,10 +130,17 @@ function AppLayout() {
   const { logout, user } = useAuth();
   const { t } = useI18n();
   const navigate = useNavigate();
+  const [theme, setCurrentTheme] = useState<Theme>(() => getTheme());
 
   function handleLogout() {
     logout();
     navigate("/login", { replace: true });
+  }
+
+  function handleThemeToggle() {
+    const nextTheme = theme === "dark" ? "light" : "dark";
+    setTheme(nextTheme);
+    setCurrentTheme(nextTheme);
   }
 
   return (
@@ -160,6 +168,15 @@ function AppLayout() {
 
         <div className="session-area">
           <LangToggle />
+          <button
+            aria-label={t("theme.toggle")}
+            aria-pressed={theme === "light"}
+            className="ghost lang-toggle"
+            onClick={handleThemeToggle}
+            type="button"
+          >
+            {theme === "dark" ? "☀" : "☾"}
+          </button>
           <span className="user-chip">{user?.name ?? t("session.fallbackName")}</span>
           <span className="role-badge">{user?.role ?? t("session.fallbackRole")}</span>
           <button className="ghost" onClick={handleLogout} type="button">
